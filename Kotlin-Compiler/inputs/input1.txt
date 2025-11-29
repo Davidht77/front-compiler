@@ -1,0 +1,5 @@
+val x: Int = 5;
+
+fun main() {
+    println(x);
+}

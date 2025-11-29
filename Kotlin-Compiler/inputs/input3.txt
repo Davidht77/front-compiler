@@ -1,0 +1,11 @@
+fun sumarDos(var numero: Int): Int {
+    return numero + 2;
+}
+
+fun main() {
+    var valor: Int = 7;
+    
+    var resultado: Int = sumarDos(valor);
+    
+    println(resultado);
+}

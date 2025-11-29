@@ -1,0 +1,30 @@
+Scanner
+
+TOKEN(VAR, "var")
+TOKEN(ID, "a")
+TOKEN(COLON, ":")
+TOKEN(ID, "Int")
+TOKEN(ASSIGN, "=")
+TOKEN(NUM, "5")
+TOKEN(VAR, "var")
+TOKEN(ID, "b")
+TOKEN(COLON, ":")
+TOKEN(ID, "Int")
+TOKEN(ASSIGN, "=")
+TOKEN(NUM, "5")
+TOKEN(FUN, "fun")
+TOKEN(ID, "main")
+TOKEN(LPAREN, "(")
+TOKEN(RPAREN, ")")
+TOKEN(LKEY, "{")
+TOKEN(PRINTLN, "println")
+TOKEN(LPAREN, "(")
+TOKEN(ID, "a")
+TOKEN(PLUS, "+")
+TOKEN(ID, "b")
+TOKEN(RPAREN, ")")
+TOKEN(RKEY, "}")
+TOKEN(END)
+
+Scanner exitoso
+

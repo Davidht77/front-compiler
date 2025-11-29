@@ -1,0 +1,22 @@
+var x: Int = 10
+var y: Int = 5
+
+fun add(a: Int, b: Int): Int {
+    return a + b
+}
+
+fun main() {
+    val sum = add(x, y)
+    println(sum)
+    
+    var i = 0
+    while (i < 5) {
+        if (i % 2 == 0) {
+            println(i)
+        }
+        i = i + 1
+    }
+    
+    val check = (x > y) && (sum != 0)
+    print(check)
+}

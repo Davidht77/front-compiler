@@ -1,0 +1,6 @@
+fun main() {
+    val byteVal = 100.toByte()
+    val shortVal = 1000.toShort()
+    val resultado = byteVal + shortVal
+    println(resultado)
+}

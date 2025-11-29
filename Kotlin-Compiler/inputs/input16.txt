@@ -1,0 +1,4 @@
+fun main(){
+    val a = 2 + 3 * 4
+    println(a)
+}

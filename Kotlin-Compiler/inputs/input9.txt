@@ -1,0 +1,12 @@
+fun helper(): Int {
+    return 99
+}
+
+fun unused(): Int {
+    println(123)
+    return 5
+}
+
+fun main() {
+    println(helper())
+}

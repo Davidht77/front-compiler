@@ -1,0 +1,12 @@
+fun main() {
+    val byteVal: Byte = 10
+    val shortVal: Short = 20
+    val intVal: Int = 30
+    val longVal: Long = 40L
+    
+    val sumInt: Int = byteVal + shortVal + intVal
+    println(sumInt)
+    
+    val sumLong: Long = byteVal + shortVal + intVal + longVal
+    println(sumLong)
+}

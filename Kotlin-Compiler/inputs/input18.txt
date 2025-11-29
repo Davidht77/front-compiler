@@ -1,0 +1,8 @@
+fun sumarDos(var numero: Int): Int {
+    return numero + 2;
+}
+
+fun main(){
+    val res = (1 + 2) * (3 + 4) + (5 + 6) * (7 + 8)
+    println(res)
+}

@@ -1,0 +1,24 @@
+Scanner
+
+TOKEN(FUN, "fun")
+TOKEN(ID, "main")
+TOKEN(LPAREN, "(")
+TOKEN(RPAREN, ")")
+TOKEN(LKEY, "{")
+TOKEN(VAL, "val")
+TOKEN(ID, "a")
+TOKEN(ASSIGN, "=")
+TOKEN(NUM, "2")
+TOKEN(PLUS, "+")
+TOKEN(NUM, "3")
+TOKEN(MUL, "*")
+TOKEN(NUM, "4")
+TOKEN(PRINTLN, "println")
+TOKEN(LPAREN, "(")
+TOKEN(ID, "a")
+TOKEN(RPAREN, ")")
+TOKEN(RKEY, "}")
+TOKEN(END)
+
+Scanner exitoso
+

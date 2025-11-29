@@ -1,0 +1,8 @@
+fun main() {
+    val entero = 42
+    val flotante: Float = entero.toFloat()
+    val largo: Long = flotante.toLong()
+    
+    println(flotante)
+    println(largo)
+}

@@ -1,0 +1,7 @@
+fun main(){
+    val floatVal: Float = 1.23F
+    val doubleVal: Double = 4.56
+    
+    val sumDouble = floatVal + doubleVal
+    println(sumDouble)
+}

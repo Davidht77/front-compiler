@@ -1,0 +1,6 @@
+fun main() {
+    val a = 10
+    val b = 3.14F
+    val resultado = a + b  
+    println(resultado)  
+}

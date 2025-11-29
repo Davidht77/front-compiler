@@ -1,0 +1,13 @@
+fun main() {
+    val i: Int = 5
+    val f: Float = 2.5F
+    val d: Double = 1.1
+    
+    val op1 = i + f
+    val op2 = op1 + d.toFloat()
+    val conv = op2.toInt()
+    
+    println(op1)
+    println(op2)
+    println(conv)
+}
