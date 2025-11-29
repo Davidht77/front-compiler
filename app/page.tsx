@@ -11,6 +11,13 @@ import X86Executor from "@/components/compiler/x86-executor"
 interface CompilationResult {
   assembly?: string
   x86?: string
+  stack_frames?: Array<
+    Array<{
+      register: string
+      value: string
+      type: string
+    }>
+  >
   stack_state?: Array<{
     register: string
     value: string
@@ -145,13 +152,17 @@ fun main() {
                 </div>
                 <StackVisualizer
                   stackState={compilationResult?.stack_state || compilationResult?.stackState || []}
-                  frames={(compilationResult?.execution_steps || compilationResult?.steps || []).map((step) =>
-                    Object.entries(step.registers || {}).map(([reg, value]) => ({
-                      register: reg,
-                      value: value,
-                      type: "reg",
-                    }))
-                  )}
+                  frames={
+                    compilationResult?.stack_frames && compilationResult.stack_frames.length
+                      ? compilationResult.stack_frames
+                      : (compilationResult?.execution_steps || compilationResult?.steps || []).map((step) =>
+                          Object.entries(step.registers || {}).map(([reg, value]) => ({
+                            register: reg,
+                            value: value,
+                            type: "reg",
+                          }))
+                        )
+                  }
                 />
               </div>
             </div>

@@ -277,6 +277,7 @@ int GenCodeVisitor::visit(Program* program) {
     out << "print_fmt_num: .string \"%ld \\n\""<<endl;
     out << "print_fmt_float: .string \"%f\\n\""<<endl; // Formato para flotantes
     out << "print_fmt_str: .string \"%s\\n\""<<endl;
+    out << "stack_fmt: .string \"STACK rsp=%p rbp=%p\\n\""<<endl;
 
     // A. Recorrer VarDecs Globales para registrarlas y definirlas estáticamente.
     for (auto dec : program->vdlist){
@@ -417,6 +418,12 @@ int GenCodeVisitor::visit(VarDec* stm) {
             int size = getTypeSize(destType ? destType : stm->init->inferredType);
             string reg = getReg("rax", size);
             out << " mov" << getSuffix(size) << " " << reg << ", " << varOffset << "(%rbp)"<<endl;
+            // Log de pila tras inicializar variable local
+            out << " leaq stack_fmt(%rip), %rdi\n";
+            out << " movq %rsp, %rsi\n";
+            out << " movq %rbp, %rdx\n";
+            out << " movl $0, %eax\n";
+            out << " call printf@PLT\n";
         }
     }
     return 0;
@@ -939,8 +946,21 @@ int GenCodeVisitor::visit(FunDec* f) {
     int reserva = (numVars * 8 + 15) / 16 * 16; // Redondear al múltiplo de 16
     
     out << " subq $" << reserva << ", %rsp" << endl;
+    // Log de pila en entrada
+    out << " leaq stack_fmt(%rip), %rdi\n";
+    out << " movq %rsp, %rsi\n";
+    out << " movq %rbp, %rdx\n";
+    out << " movl $0, %eax\n";
+    out << " call printf@PLT\n";
     
     f->cuerpo->accept(this);
+    
+    // Log de pila en main: imprime rsp y rbp reales
+    out << " leaq stack_fmt(%rip), %rdi\n";
+    out << " movq %rsp, %rsi\n";
+    out << " movq %rbp, %rdx\n";
+    out << " movl $0, %eax\n";
+    out << " call printf@PLT\n";
     
     out << ".end_"<< f->nombre << ":"<< endl;
     out << "leave" << endl;

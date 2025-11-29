@@ -16,6 +16,7 @@ export default function CompilerPage() {
 }`)
   const [x86Output, setX86Output] = useState("")
   const [stackState, setStackState] = useState<Array<{ register: string; value: string; type: string }>>([])
+  const [stackFrames, setStackFrames] = useState<Array<Array<{ register: string; value: string; type: string }>>>([])
   const [isCompiling, setIsCompiling] = useState(false)
   const [activeTab, setActiveTab] = useState("compiler")
   const [executionSteps, setExecutionSteps] = useState<any[]>([])
@@ -35,6 +36,7 @@ export default function CompilerPage() {
       const data = await response.json()
       setX86Output(data.x86 || data.assembly || "")
       setStackState(data.stackState || data.stack_state || [])
+      setStackFrames(data.stack_frames || [])
       const steps = data.steps || data.execution_steps || []
       setExecutionSteps(steps.length ? steps : data.stdout ? [{ instruction: "program output", registers: {}, output: data.stdout }] : [])
       setProgramOutput(data.stdout || data.execution_output || "")
@@ -49,6 +51,7 @@ export default function CompilerPage() {
   const handleReset = () => {
     setX86Output("")
     setStackState([])
+    setStackFrames([])
     setExecutionSteps([])
     setProgramOutput("")
   }
@@ -139,7 +142,7 @@ export default function CompilerPage() {
               </div>
               <StackVisualizer
                 stackState={stackState}
-                frames={executionSteps.map((step) =>
+                frames={stackFrames.length ? stackFrames : executionSteps.map((step) =>
                   Object.entries(step.registers || {}).map(([reg, value]) => ({
                     register: reg,
                     value: value,
@@ -152,7 +155,7 @@ export default function CompilerPage() {
             {/* Program Output */}
             <div className="flex-1 flex flex-col min-w-0 border-2 border-orange-500/60 rounded-lg bg-neutral-950 shadow-lg shadow-orange-500/20 overflow-hidden">
               <div className="h-12 bg-gradient-to-r from-neutral-800 to-neutral-900 border-b-2 border-orange-500/60 flex items-center px-4">
-                <span className="text-sm font-mono text-orange-400 font-bold tracking-wider">�-O PROGRAM OUTPUT</span>
+                <span className="text-sm font-mono text-orange-400 font-bold tracking-wider">▌ PROGRAM OUTPUT</span>
               </div>
               <div className="p-4 font-mono text-sm text-neutral-200 whitespace-pre-wrap min-h-[80px]">
                 {programOutput || "Sin salida aún"}
