@@ -4,6 +4,8 @@
 #include "ast.h"
 #include "parser.h"
 
+const long long INT_MAX_32BIT = 2147483647LL;
+
 using namespace std;
 
 // =============================
@@ -404,73 +406,153 @@ Exp* Parser::parseUnary() {
     return parsePrimary();
 }
 
-// Primary ::= id | Num | Bool | String | "(" Exp ")" | FunctionCall
+// Dentro de parser.cpp
+
 Exp* Parser::parsePrimary() {
     Exp* expr = nullptr;
 
+    // 1. Literales numéricos
+    // Nota: El scanner ya diferencia NUM (Int), LONG_LIT, y FLOAT_LIT.
+
+    // A. Entero (32 bits): Token::NUM
     if (match(Token::NUM)) {
         string text = previous->text;
-        if (text.find('.') != string::npos) {
-            expr = new DoubleExp(stod(text));
-        } else {
-            expr = new NumberExp(stoi(text));
+        
+        try {
+            // Usamos stoll (string to long long) para verificar el rango antes de convertir a int.
+            long long val = stoll(text); 
+
+            // Verificación de rango estricta para Int (32 bits)
+            // Si el valor no cabe en un int de 32 bits, lanzamos un error o lo dejamos como Long.
+            // Aquí elegimos lanzar un error si supera el rango de INT.
+            if (val > INT_MAX_32BIT || val < -INT_MAX_32BIT - 1LL) {
+                // Si la gramática permite Int de 64 bits por defecto, cambia esto a: 
+                // return new LongExp(val);
+                throw runtime_error("Error de rango: Literal entero fuera del rango de 32 bits: " + previous->text);
+            }
+
+            expr = new NumberExp((int)val); // Crea el nodo NumberExp (Int de 32 bits)
+        } catch (const std::out_of_range& e) {
+            throw runtime_error("Error de rango: Literal entero demasiado grande: " + previous->text);
+        } catch (const std::invalid_argument& e) {
+            throw runtime_error("Argumento invalido para literal entero: " + previous->text);
         }
     }
-    // << NUEVO: Reconocimiento de String Literal >>
-    else if (match(Token::STRING_LIT)) { 
-        expr = new StringExp(previous->text);
+    
+    // B. Long (64 bits): Token::LONG_LIT
+    else if (match(Token::LONG_LIT)) {
+        string text = previous->text; 
+        
+        // Eliminar el sufijo 'L' o 'l' al final
+        if (text.length() > 0 && (text.back() == 'L' || text.back() == 'l')) {
+            text.pop_back(); 
+        }
+        
+        try {
+            long long val = stoll(text); // Conversión a long long (64 bits)
+            expr = new LongExp(val);     // Crea el nodo LongExp
+        } catch (const std::out_of_range& e) {
+            throw runtime_error("Error de rango: Literal Long fuera de rango: " + previous->text);
+        } catch (const std::invalid_argument& e) {
+            throw runtime_error("Argumento invalido para literal Long: " + previous->text);
+        }
     }
-    // << FIN NUEVO >>
+    
+    // C. Flotante / Double (64 bits): Token::FLOAT_LIT
+    else if (match(Token::FLOAT_LIT)) {
+        string text = previous->text;
+        
+        // Eliminar el sufijo 'F', 'f', 'D' o 'd' si existe
+        char lastChar = text.empty() ? ' ' : text.back();
+        if (lastChar == 'F' || lastChar == 'f' || lastChar == 'D' || lastChar == 'd') {
+            text.pop_back(); 
+        }
+        
+        try {
+            double val = stod(text); // Conversión a double (64 bits)
+            expr = new DoubleExp(val); // Crea el nodo DoubleExp
+        } catch (const std::out_of_range& e) {
+            throw runtime_error("Error de rango: Literal flotante fuera de rango: " + previous->text);
+        } catch (const std::invalid_argument& e) {
+            throw runtime_error("Argumento invalido para literal flotante: " + previous->text);
+        }
+    }
+    
+    // 2. Otros literales
     else if (match(Token::TRUE)) {
         expr = new BoolExp(true);
-    }
-    else if (match(Token::FALSE)) {
+    } else if (match(Token::FALSE)) {
         expr = new BoolExp(false);
+    } else if (match(Token::STRING_LIT)) {
+        // La cadena almacenada en previous->text ya está limpia (sin comillas),
+        // gracias a la lógica que incluiste en el scanner.
+        expr = new StringExp(previous->text);
     }
+    
+    // 3. Agrupación (paréntesis)
     else if (match(Token::LPAREN)) {
         expr = parseExp();
-        match(Token::RPAREN);
+        if (!match(Token::RPAREN)) throw runtime_error("Se esperaba ')' después de la expresión agrupada.");
     }
+    
+    // 4. Identificador (inicio de expresión ID o ID())
     else if (match(Token::ID)) {
         expr = new IdExp(previous->text);
     }
+    
+    // 5. Error
     else {
-        throw runtime_error("Expected expression");
+        throw runtime_error("Se esperaba una expresión primaria (literal, ID, o '()')");
     }
 
-    // Postfijos: llamada de función o método (ej. foo(), 100.toByte())
+    // =========================================================================
+    // 6. Postfijos: Llamada de función o método (ej. foo(), 100.toByte())
+    // Esta parte es la que ya tenías en tu snippet
+    // =========================================================================
     while (true) {
         if (check(Token::LPAREN)) {
             match(Token::LPAREN);
             vector<Exp*> args;
+            
+            // Si no está seguido de un ')' inmediato, parsea argumentos
             if (!check(Token::RPAREN)) {
                 do {
                     args.push_back(parseExp());
                 } while (match(Token::COMA));
             }
-            if (!match(Token::RPAREN)) throw runtime_error("Expected ')' after function arguments");
+            
+            if (!match(Token::RPAREN)) throw runtime_error("Se esperaba ')' después de los argumentos de la función");
 
+            // Esto asume que el identificador (IdExp) se parseó justo antes
             IdExp* id = dynamic_cast<IdExp*>(expr);
             if (!id) throw runtime_error("Solo se pueden llamar identificadores directamente.");
+            
+            // El expr actual (IdExp) se convierte en la llamada a función (FcallExp)
             expr = new FcallExp(id->value, args);
         }
         else if (match(Token::DOT)) {
-            if (!match(Token::ID)) throw runtime_error("Expected identifier after '.'");
+            // Manejo de métodos (ej. 10.toLong())
+            if (!match(Token::ID)) throw runtime_error("Se esperaba un identificador de método después de '.'");
             string methodName = previous->text;
 
             vector<Exp*> args;
+            // Los métodos pueden tener paréntesis para argumentos (o no si no tienen args)
             if (match(Token::LPAREN)) {
                 if (!check(Token::RPAREN)) {
                     do {
                         args.push_back(parseExp());
                     } while (match(Token::COMA));
                 }
-                if (!match(Token::RPAREN)) throw runtime_error("Expected ')' after method arguments");
+                if (!match(Token::RPAREN)) throw runtime_error("Se esperaba ')' después de los argumentos del método");
             }
-            expr = new FcallExp(methodName, args, expr);
+            
+            // El expr actual (que puede ser NumberExp, LongExp, etc.) se convierte en el 'receiver' (receptor)
+            // del método/llamada a función (FcallExp)
+            Exp* receiver = expr; 
+            expr = new FcallExp(methodName, args, receiver);
         }
         else {
-            break;
+            break; // No hay más postfijos
         }
     }
 

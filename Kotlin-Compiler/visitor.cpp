@@ -4,6 +4,7 @@
 #include "semantic_types.h"
 #include <unordered_map>
 #include <unordered_set>
+
 #include <vector>
 #include <algorithm>
 #include <cstring>
@@ -203,6 +204,10 @@ int DoubleExp::accept(Visitor* visitor) {
     return visitor->visit(this);
 }
 
+int LongExp::accept(Visitor* visitor) { 
+    return visitor->visit(this); 
+}
+
 int BoolExp::accept(Visitor* visitor) {
     return visitor->visit(this);
 }
@@ -277,7 +282,6 @@ int GenCodeVisitor::visit(Program* program) {
     out << "print_fmt_num: .string \"%ld \\n\""<<endl;
     out << "print_fmt_float: .string \"%f\\n\""<<endl; // Formato para flotantes
     out << "print_fmt_str: .string \"%s\\n\""<<endl;
-    out << "stack_fmt: .string \"STACK rsp=%p rbp=%p\\n\""<<endl;
 
     // A. Recorrer VarDecs Globales para registrarlas y definirlas estáticamente.
     for (auto dec : program->vdlist){
@@ -418,12 +422,6 @@ int GenCodeVisitor::visit(VarDec* stm) {
             int size = getTypeSize(destType ? destType : stm->init->inferredType);
             string reg = getReg("rax", size);
             out << " mov" << getSuffix(size) << " " << reg << ", " << varOffset << "(%rbp)"<<endl;
-            // Log de pila tras inicializar variable local
-            out << " leaq stack_fmt(%rip), %rdi\n";
-            out << " movq %rsp, %rsi\n";
-            out << " movq %rbp, %rdx\n";
-            out << " movl $0, %eax\n";
-            out << " call printf@PLT\n";
         }
     }
     return 0;
@@ -436,12 +434,38 @@ int GenCodeVisitor::visit(NumberExp* exp) {
     return 0;
 }
 
+// En visitor.cpp
+#include <cstring> // Necesario para memcpy
+
+// En visitor.cpp
 int GenCodeVisitor::visit(DoubleExp* exp) {
+    std::cerr << "DEBUG: Visitando DoubleExp con valor: " << exp->value << std::endl;
     long long bits;
-    double d = exp->value;
+    double d = exp->value; 
+    
+    cout << d << endl;
+
+    // 1. Obtener la representación binaria (patrón de bits) de 64 bits
+    // Esto es crucial para un literal flotante.
     memcpy(&bits, &d, sizeof(bits));
-    out << " movabsq $" << bits << ", %rax\n";
-    return 0;
+    
+    // 2. Cargar el patrón de bits en RAX usando movabsq (la única forma robusta)
+    out << " movabsq $" << bits << ", %rax\n"; 
+    
+    // 3. Mover el patrón de bits de RAX al registro de coma flotante XMM0
+    out << " movq %rax, %xmm0\n"; 
+    
+    // El resultado queda en %xmm0 (64 bits).
+    return 8; 
+}
+
+// En visitor.cpp
+
+int GenCodeVisitor::visit(LongExp* exp) {
+    // CORRECCIÓN: Usar "\n" en lugar de "\\n" y eliminar el espacio extra
+    out << " movq $" << exp->valor << ", %rax\n"; 
+    
+    return 8; 
 }
 
 int GenCodeVisitor::visit(BoolExp* exp) {
@@ -946,21 +970,8 @@ int GenCodeVisitor::visit(FunDec* f) {
     int reserva = (numVars * 8 + 15) / 16 * 16; // Redondear al múltiplo de 16
     
     out << " subq $" << reserva << ", %rsp" << endl;
-    // Log de pila en entrada
-    out << " leaq stack_fmt(%rip), %rdi\n";
-    out << " movq %rsp, %rsi\n";
-    out << " movq %rbp, %rdx\n";
-    out << " movl $0, %eax\n";
-    out << " call printf@PLT\n";
     
     f->cuerpo->accept(this);
-    
-    // Log de pila en main: imprime rsp y rbp reales
-    out << " leaq stack_fmt(%rip), %rdi\n";
-    out << " movq %rsp, %rsi\n";
-    out << " movq %rbp, %rdx\n";
-    out << " movl $0, %eax\n";
-    out << " call printf@PLT\n";
     
     out << ".end_"<< f->nombre << ":"<< endl;
     out << "leave" << endl;

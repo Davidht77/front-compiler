@@ -40,28 +40,55 @@ Token* Scanner::nextToken() {
     char c = input[current];
     first = current; // Guardar la posición de inicio del posible token
 
-    // 3. Números (Enteros y Flotantes)
+    // 3. Números (INT, LONG, FLOAT/DOUBLE)
     if (isdigit(c)) {
-        current++;
+        Token::Type type = Token::NUM; // Por defecto: NUM (Int)
+        
+        // 1. Consumir parte entera
         while (current < input.length() && isdigit(input[current]))
             current++;
         
-        // Verificar si hay un punto decimal SOLO si va seguido de dígito
-        bool hasDot = false;
-        if (current + 1 < input.length() && input[current] == '.' && isdigit(input[current + 1])) {
-            hasDot = true;
+        // 2. Revisar punto decimal '.'
+        bool is_float = false;
+        // Si encontramos un punto ('.') Y:
+        // a) Está seguido de un dígito (ej. 3.14) O
+        // b) Es el final del número (ej. 3.0f), aunque en muchos lenguajes (Kotlin, Java) 3. es inválido.
+        // Usaremos la convención estricta: punto seguido de dígito.
+        if (current < input.length() && input[current] == '.') {
+            // Marcamos como flotante. Asumimos que FLOAT_LIT cubre Float y Double.
+            is_float = true; 
+            type = Token::FLOAT_LIT; 
             current++; // Consumir el punto
+            
+            // Consumir dígitos decimales
             while (current < input.length() && isdigit(input[current]))
                 current++;
         }
-
-        int end = current;
-        // Consumir sufijos de literal (F/f, L/l) sin incluirlos en el lexema
-        if (current < input.length() && (input[current] == 'f' || input[current] == 'F' || input[current] == 'l' || input[current] == 'L')) {
-            current++;
+        
+        // 3. Revisar sufijo (L/l para Long, F/f o D/d para Float/Double)
+        if (current < input.length()) {
+            char suffix = input[current];
+            
+            if (suffix == 'L' || suffix == 'l') {
+                // Si NO era flotante (no tenía punto), lo marcamos como LONG_LIT.
+                if (!is_float) {
+                    type = Token::LONG_LIT; 
+                    current++; // Consumir el sufijo
+                }
+                // Si ya era flotante (is_float == true), ignoramos 'L/l' o lo tratamos como error (depende de la gramática).
+                // Por simplicidad, si ya es flotante, prevalece.
+            } 
+            // AÑADIDO: Manejo de sufijos F/f y D/d (Float/Double)
+            else if (suffix == 'F' || suffix == 'f' || suffix == 'D' || suffix == 'd') {
+                is_float = true; // Forzamos a que sea flotante si no tenía punto (ej. 100D)
+                type = Token::FLOAT_LIT; 
+                current++; // Consumir el sufijo
+            }
         }
         
-        token = new Token(Token::NUM, input, first, end - first);
+        // Si hubo punto decimal o un sufijo flotante, el tipo es FLOAT_LIT.
+        // Si no hubo nada, se queda en NUM.
+        token = new Token(type, input, first, current - first);
     }
     
     // 4. ID (Identificadores y Palabras Clave)

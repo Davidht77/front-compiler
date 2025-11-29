@@ -62,8 +62,13 @@ BinaryExp::~BinaryExp() { delete left; delete right; }
 NumberExp::NumberExp(int v) : value(v) { isnumber = true; valor = v; etiqueta = 0; }
 NumberExp::~NumberExp() {}
 
-DoubleExp::DoubleExp(double v) : value(v) { isnumber = false; valor = 0; etiqueta = 0; }
+DoubleExp::DoubleExp(double v) : value(v) { isnumber = true; value = v; etiqueta = 0;}
 DoubleExp::~DoubleExp() {}
+
+LongExp::LongExp(long long v) : valor(v) { 
+    isnumber = true; 
+}
+LongExp::~LongExp() {}
 
 BoolExp::BoolExp(bool v) : value(v) { isnumber = true; valor = v ? 1 : 0; etiqueta = 0; }
 BoolExp::~BoolExp() {}

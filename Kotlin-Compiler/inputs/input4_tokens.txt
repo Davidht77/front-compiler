@@ -1,0 +1,24 @@
+Scanner
+
+TOKEN(FUN, "fun")
+TOKEN(ID, "main")
+TOKEN(LPAREN, "(")
+TOKEN(RPAREN, ")")
+TOKEN(LKEY, "{")
+TOKEN(VAL, "val")
+TOKEN(ID, "intVal")
+TOKEN(COLON, ":")
+TOKEN(ID, "Int")
+TOKEN(ASSIGN, "=")
+TOKEN(NUM, "30")
+TOKEN(VAL, "val")
+TOKEN(ID, "longVal")
+TOKEN(COLON, ":")
+TOKEN(ID, "Long")
+TOKEN(ASSIGN, "=")
+TOKEN(NUM, "4000")
+TOKEN(RKEY, "}")
+TOKEN(END)
+
+Scanner exitoso
+

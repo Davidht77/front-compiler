@@ -1,0 +1,30 @@
+Scanner
+
+TOKEN(FUN, "fun")
+TOKEN(ID, "main")
+TOKEN(LPAREN, "(")
+TOKEN(RPAREN, ")")
+TOKEN(LKEY, "{")
+TOKEN(VAL, "val")
+TOKEN(IN, "in")
+TOKEN(COLON, ":")
+TOKEN(ID, "Int")
+TOKEN(ASSIGN, "=")
+TOKEN(NUM, "9")
+TOKEN(VAL, "val")
+TOKEN(ID, "flo")
+TOKEN(COLON, ":")
+TOKEN(ID, "Float")
+TOKEN(ASSIGN, "=")
+TOKEN(FLOAT_LIT, "3.14159")
+TOKEN(VAL, "val")
+TOKEN(ID, "lon")
+TOKEN(COLON, ":")
+TOKEN(ID, "Long")
+TOKEN(ASSIGN, "=")
+TOKEN(LONG_LIT, "3L")
+TOKEN(RKEY, "}")
+TOKEN(END)
+
+Scanner exitoso
+

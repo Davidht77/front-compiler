@@ -59,7 +59,8 @@ public:
         RANGE,   // ..
         DOWNTO,  // downTo
         STEP,    // step
-        FLOAT_LIT // 3.14
+        FLOAT_LIT, // 3.14
+        LONG_LIT
     };
 
     // Atributos

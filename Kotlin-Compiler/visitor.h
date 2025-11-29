@@ -26,12 +26,13 @@ class ForStmt;
 class IdExp;
 class StringExp; // Declaración de StringExp
 class DoubleExp; // Declaración de DoubleExp
-
+class LongExp; // Declaración de DoubleExp
 class Visitor {
 public:
     virtual int visit(BinaryExp* exp) = 0;
     virtual int visit(NumberExp* exp) = 0;
     virtual int visit(DoubleExp* exp) = 0; // Método para DoubleExp
+    virtual int visit(LongExp* exp) = 0; // Método para DoubleExp
     virtual int visit(BoolExp* exp) = 0; 
     virtual int visit(IdExp* exp) = 0;
     virtual int visit(StringExp* exp) = 0; // Método para StringExp
@@ -74,6 +75,7 @@ public:
     int visit(BinaryExp* exp) override;
     int visit(NumberExp* exp) override;
     int visit(DoubleExp* exp) override;
+    int visit(LongExp* exp) override;
     int visit(BoolExp* exp) override;
     int visit(IdExp* exp) override;
     int visit(StringExp* exp) override;

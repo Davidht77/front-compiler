@@ -6,6 +6,7 @@ using namespace std;
 
 Type* NumberExp::accept(TypeVisitor* v) { return v->visit(this); }
 Type* DoubleExp::accept(TypeVisitor* v) { return v->visit(this); }
+Type* LongExp::accept(TypeVisitor* v) { return v->visit(this); }
 Type* BoolExp::accept(TypeVisitor* v) { return v->visit(this); }
 Type* IdExp::accept(TypeVisitor* v) { return v->visit(this); }
 Type* BinaryExp::accept(TypeVisitor* v) { return v->visit(this); }
@@ -445,6 +446,12 @@ Type* TypeChecker::visit(DoubleExp* e) {
     Type* doubleType = new Type(Type::DOUBLE);
     e->inferredType = doubleType;
     return doubleType;
+}
+
+Type* TypeChecker::visit(LongExp* e) {
+    Type* longType = new Type(Type::LONG);
+    e->inferredType = longType;
+    return longType;
 }
 
 Type* TypeChecker::visit(IdExp* e) {

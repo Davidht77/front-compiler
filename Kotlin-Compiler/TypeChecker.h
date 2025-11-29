@@ -12,6 +12,7 @@ using namespace std;
 class BinaryExp;
 class NumberExp;
 class DoubleExp; // Agregado
+class LongExp;
 class Program;
 class PrintStm;
 class AssignExp; // Cambiado desde AssignStm
@@ -47,6 +48,7 @@ public:
     virtual Type* visit(BinaryExp* e) = 0;
     virtual Type* visit(NumberExp* e) = 0;
     virtual Type* visit(DoubleExp* e) = 0; // Agregado
+    virtual Type* visit(LongExp* e) = 0; // Agregado
     virtual Type* visit(IdExp* e) = 0;
     virtual Type* visit(BoolExp* e) = 0;
     virtual Type* visit(FcallExp* e) = 0;
@@ -107,6 +109,7 @@ public:
     Type* visit(BinaryExp* e) override;
     Type* visit(NumberExp* e) override;
     Type* visit(DoubleExp* e) override; // Agregado
+    Type* visit(LongExp* e) override; // Agregado
     Type* visit(IdExp* e) override;
     Type* visit(BoolExp* e) override;
     Type* visit(FcallExp* e) override;

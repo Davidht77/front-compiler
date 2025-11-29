@@ -87,6 +87,19 @@ public:
     ~DoubleExp();
 };
 
+// Clase para literales de 64 bits (Long)
+class LongExp : public Exp {
+public:
+    long long valor; // Almacena el valor de 64 bits
+    LongExp(long long v);
+    
+    // Métodos de aceptación (visitors)
+    int accept(Visitor* visitor) override;
+    Type* accept(TypeVisitor* visitor) override;
+    
+    ~LongExp();
+};
+
 class BoolExp : public Exp {
 public:
     bool value;
